@@ -9,6 +9,14 @@ const catNameInput = document.getElementById('catName');
 const catDescriptionInput = document.getElementById('catDescription');
 const catTagInput = document.getElementById('catTag');
 const catImageInput = document.getElementById('catImage');
+const searchInput = document.getElementById('searchInput');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const pageInfo = document.getElementById('pageInfo');
+
+let allCats = [];
+let currentPage = 1;
+const itemsPerPage = 10;
 
 // Fetch and display cat on load
 document.addEventListener('DOMContentLoaded', fetchcat);
@@ -21,19 +29,63 @@ window.addEventListener('click', (e) => {
 });
 catForm.addEventListener('submit', saveCat);
 
+searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filteredCats = allCats.filter(cat => 
+        cat.name.toLowerCase().includes(searchTerm)
+    );
+    currentPage = 1; // Reset to first page on search
+    rendercat(filteredCats);
+});
+
+prevBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        const searchTerm = searchInput.value.toLowerCase();
+        const filteredCats = allCats.filter(cat => 
+            cat.name.toLowerCase().includes(searchTerm)
+        );
+        rendercat(filteredCats);
+    }
+});
+
+nextBtn.addEventListener('click', () => {
+    const searchTerm = searchInput.value.toLowerCase();
+    const filteredCats = allCats.filter(cat => 
+        cat.name.toLowerCase().includes(searchTerm)
+    );
+    const totalPages = Math.ceil(filteredCats.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        rendercat(filteredCats);
+    }
+});
+
 async function fetchcat() {
     try {
         const response = await fetch('/cat');
-        const cat = await response.json();
-        rendercat(cat);
+        allCats = await response.json();
+        rendercat(allCats);
     } catch (error) {
         console.error('Error fetching cat:', error);
     }
 }
 
-function rendercat(cat) {
+function rendercat(cats) {
     cardsContainer.innerHTML = '';
-    cat.forEach(cat => {
+    
+    // Pagination Logic
+    const totalPages = Math.ceil(cats.length / itemsPerPage) || 1;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedCats = cats.slice(startIndex, endIndex);
+
+    // Update Controls
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
+
+    paginatedCats.forEach(cat => {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
