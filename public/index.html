@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            
+            <button id="addBtn" class="btn-primary"><i class="fas fa-plus"></i> Add Cat</button>
+        </div>
+        
+        <div class="cards-container" id="cardsContainer">
+            <!-- Cards will be injected here by JS -->
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="catModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Add New Cat</h2>
+            <form id="catForm">
+                <input type="hidden" id="catId">
+                <div class="form-group">
+                    <label for="catName">Name</label>
+                    <input type="text" id="catName" required placeholder="Enter cat name">
+                </div>
+                <div class="form-group">
+                    <label for="catDescription">Description</label>
+                    <textarea id="catDescription" required placeholder="Enter description" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="catTag">Tag</label>
+                    <input type="text" id="catTag" required placeholder="Enter tag">
+                </div>
+                <div class="form-group">
+                    <label for="catImage">Image URL</label>
+                    <input type="url" id="catImage" required placeholder="Enter image URL">
+                </div>
+                <button type="submit" class="btn-primary">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
