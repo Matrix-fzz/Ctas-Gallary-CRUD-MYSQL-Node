@@ -14,6 +14,16 @@ const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const pageInfo = document.getElementById('pageInfo');
 
+// Login/Signup Elements
+const loginBtn = document.getElementById('loginBtn');
+const signupBtn = document.getElementById('signupBtn');
+const loginModal = document.getElementById('loginModal');
+const signupModal = document.getElementById('signupModal');
+const loginCloseBtn = document.querySelector('.login-close');
+const signupCloseBtn = document.querySelector('.signup-close');
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+
 let allCats = [];
 let currentPage = 1;
 const itemsPerPage = 10;
@@ -176,3 +186,75 @@ async function deleteCat(id) {
 // Expose functions to global scope for inline onclick handlers
 window.openModal = openModal;
 window.deleteCat = deleteCat;
+
+// Login/Signup Logic
+if (loginBtn) {
+    loginBtn.addEventListener('click', () => loginModal.style.display = 'block');
+}
+if (signupBtn) {
+    signupBtn.addEventListener('click', () => signupModal.style.display = 'block');
+}
+if (loginCloseBtn) {
+    loginCloseBtn.addEventListener('click', () => loginModal.style.display = 'none');
+}
+if (signupCloseBtn) {
+    signupCloseBtn.addEventListener('click', () => signupModal.style.display = 'none');
+}
+
+window.addEventListener('click', (e) => {
+    if (e.target == loginModal) loginModal.style.display = 'none';
+    if (e.target == signupModal) signupModal.style.display = 'none';
+});
+
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        try {
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('Login Successful');
+                loginModal.style.display = 'none';
+                loginForm.reset();
+            } else {
+                alert(data.error);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Login failed');
+        }
+    });
+}
+
+if (signupForm) {
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('signupUsername').value;
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
+        try {
+            const res = await fetch('/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('Signup Successful');
+                signupModal.style.display = 'none';
+                signupForm.reset();
+            } else {
+                alert(data.error);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Signup failed');
+        }
+    });
+}

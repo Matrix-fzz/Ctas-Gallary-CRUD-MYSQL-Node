@@ -16,9 +16,37 @@
 body {
   background-color: var(--secondary-color);
   color: var(--text-color);
-  padding: 20px;
+  
 }
+header, nav {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+header{
+  margin-bottom: 20px;
+  height: 10vh;
+  background-color: #fff;
+  box-shadow: 0 0 30px rgb(15, 15, 15);
+}
+nav ul, nav .buttons{
+  display: flex;
+  
+  list-style: none;
+}
+nav ul li {
+  margin: 0 15px;
+  list-style: none;
+}
+nav ul li a{
+  text-decoration: none;
+  color: #003067;
 
+}
+nav .buttons button{
+  margin: 0 15px;
+}
 .container {
   max-width: 1200px;
   margin: 0 auto;

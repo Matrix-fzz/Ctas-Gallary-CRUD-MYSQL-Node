@@ -22,6 +22,61 @@ const pool = mysql.createPool({
 });
 
 
+// Register User
+app.post('/register', (req, res) => {
+    const { username, email, password } = req.body;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('DB connection error', err);
+            return res.status(500).json({ error: 'DB connection error' });
+        }
+        // Check if user exists
+        connection.query('SELECT * FROM users WHERE email = ?', [email], (qErr, rows) => {
+            if (qErr) {
+                connection.release();
+                console.error('Query error', qErr);
+                return res.status(500).json({ error: 'Query error' });
+            }
+            if (rows.length > 0) {
+                connection.release();
+                return res.status(400).json({ error: 'User already exists' });
+            }
+            // Insert user
+            connection.query('INSERT INTO users (username, email, password) VALUES (?, ?, ?)', [username, email, password], (insertErr, result) => {
+                connection.release();
+                if (insertErr) {
+                    console.error('Insert error', insertErr);
+                    return res.status(500).json({ error: 'Insert error' });
+                }
+                res.json({ message: 'User registered successfully' });
+            });
+        });
+    });
+});
+
+// Login User
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('DB connection error', err);
+            return res.status(500).json({ error: 'DB connection error' });
+        }
+        connection.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], (qErr, rows) => {
+            connection.release();
+            if (qErr) {
+                console.error('Query error', qErr);
+                return res.status(500).json({ error: 'Query error' });
+            }
+            if (rows.length > 0) {
+                res.json({ message: 'Login successful', user: rows[0] });
+            } else {
+                res.status(401).json({ error: 'Invalid credentials' });
+            }
+        });
+    });
+});
+
 // Get all cat
 app.get('/cat', (req, res) => {
     pool.getConnection((err, connection) => {
