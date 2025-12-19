@@ -33,14 +33,14 @@ app.post('/register', (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('DB connection error', err);
-            return res.status(500).json({ error: 'DB connection error' });
+            return res.status(500).json({ error: 'DB connection error', details: err.message });
         }
         // Check if user exists
         connection.query('SELECT * FROM users WHERE email = ?', [email], (qErr, rows) => {
             if (qErr) {
                 connection.release();
                 console.error('Query error', qErr);
-                return res.status(500).json({ error: 'Query error' });
+                return res.status(500).json({ error: 'Query error', details: qErr.message });
             }
             if (rows.length > 0) {
                 connection.release();
@@ -65,13 +65,13 @@ app.post('/login', (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('DB connection error', err);
-            return res.status(500).json({ error: 'DB connection error' });
+            return res.status(500).json({ error: 'DB connection error', details: err.message });
         }
         connection.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], (qErr, rows) => {
             connection.release();
             if (qErr) {
                 console.error('Query error', qErr);
-                return res.status(500).json({ error: 'Query error' });
+                return res.status(500).json({ error: 'Query error', details: qErr.message });
             }
             if (rows.length > 0) {
                 res.json({ message: 'Login successful', user: rows[0] });
@@ -87,13 +87,13 @@ app.get('/cat', (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('DB connection error', err);
-            return res.status(500).json({ error: 'DB connection error' });
+            return res.status(500).json({ error: 'DB connection error', details: err.message });
         }
         connection.query('SELECT * FROM cat', (qErr, rows) => {
             connection.release();
             if (qErr) {
                 console.error('Query error', qErr);
-                return res.status(500).json({ error: 'Query error' });
+                return res.status(500).json({ error: 'Query error', details: qErr.message });
             }
             res.json(rows);
         });
@@ -105,13 +105,13 @@ app.get('/cat/:id', (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('DB connection error', err);
-            return res.status(500).json({ error: 'DB connection error' });
+            return res.status(500).json({ error: 'DB connection error', details: err.message });
         }
         connection.query('SELECT * FROM cat WHERE id = ?', [req.params.id], (qErr, rows) => {
             connection.release();
             if (qErr) {
                 console.error('Query error', qErr);
-                return res.status(500).json({ error: 'Query error' });
+                return res.status(500).json({ error: 'Query error', details: qErr.message });
             }
             res.json(rows);
         });
@@ -124,13 +124,13 @@ app.post('/cat', (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('DB connection error', err);
-            return res.status(500).json({ error: 'DB connection error' });
+            return res.status(500).json({ error: 'DB connection error', details: err.message });
         }
         connection.query('INSERT INTO cat (name, description, tag, img) VALUES (?, ?, ?, ?)', [name, description, tag, img], (qErr, result) => {
             connection.release();
             if (qErr) {
                 console.error('Query error', qErr);
-                return res.status(500).json({ error: 'Query error' });
+                return res.status(500).json({ error: 'Query error', details: qErr.message });
             }
             res.json({ id: result.insertId, name, description, tag, img, message: 'Cat created successfully' });
         });
@@ -142,13 +142,13 @@ app.delete('/cat/:id', (req, res) => {
     pool.getConnection((err, connection) => {
         if (err) {
             console.error('DB connection error', err);
-            return res.status(500).json({ error: 'DB connection error' });
+            return res.status(500).json({ error: 'DB connection error', details: err.message });
         }
         connection.query('DELETE FROM cat WHERE id = ?', [req.params.id], (qErr, rows) => {
             connection.release();
             if (qErr) {
                 console.error('Query error', qErr);
-                return res.status(500).json({ error: 'Query error' });
+                return res.status(500).json({ error: 'Query error', details: qErr.message });
             }
             res.json({ message: `Record Num: ${req.params.id} deleted successfully` });
         });
@@ -167,7 +167,7 @@ app.put('/cat/:id', (req, res) => {
             connection.release();
             if (qErr) {
                 console.error('Query error', qErr);
-                return res.status(500).json({ error: 'Query error' });
+                return res.status(500).json({ error: 'Query error', details: qErr.message });
             }
             res.json({ message: `Record Num: ${req.params.id} updated successfully` });
         });
