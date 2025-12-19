@@ -8,14 +8,19 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(express.static("public"));
+// app.use(express.static("public")); // Cloudflare Workers doesn't support local fs static serving this way
+
+// Health check route
+app.get('/', (req, res) => {
+    res.json({ message: "Welcome to the Node.js Cloudflare Worker API", status: "ok" });
+});
 
 // Create a MySQL connection pool
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'nodejs_proj',
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'nodejs_proj',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
