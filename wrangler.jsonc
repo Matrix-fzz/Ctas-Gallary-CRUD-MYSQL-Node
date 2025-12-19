@@ -1,5 +1,5 @@
 {
-  "name": "pnode-worker",
+  "name": "cats",
   "main": "worker.js",
   "compatibility_date": "2024-12-19",
   "compatibility_flags": [
