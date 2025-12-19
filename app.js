@@ -23,7 +23,7 @@ const pool = mysql.createPool({
 
 
 // Register User
-app.post('/register', (req, res) => {
+app.post('/register', (req, res\) => {
     const { username, email, password } = req.body;
     pool.getConnection((err, connection) => {
         if (err) {
