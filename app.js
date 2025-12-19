@@ -23,7 +23,7 @@ const pool = mysql.createPool({
 
 
 // Register User
-app.post('/register', (req, res\) => {
+app.post('/register', (req, res) => {
     const { username, email, password } = req.body;
     pool.getConnection((err, connection) => {
         if (err) {
@@ -170,6 +170,10 @@ app.put('/cat/:id', (req, res) => {
 });
 
 // List on the Port
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+}
+
+module.exports = app;
