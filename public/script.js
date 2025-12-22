@@ -258,3 +258,29 @@ if (signupForm) {
         }
     });
 }
+import { createClient } from '@supabase/supabase-js'
+
+export default {
+  async fetch(request, env) {
+    // 1. Initialize Supabase with your Secrets
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
+
+    // 2. Query your 'cat' table
+    const { data, error } = await supabase
+      .from('cat')
+      .select('*')
+
+    // 3. Handle errors
+    if (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // 4. Return the data
+    return new Response(JSON.stringify(data), {
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
