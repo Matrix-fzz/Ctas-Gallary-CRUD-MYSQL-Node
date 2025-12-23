@@ -64,14 +64,34 @@ const checkDb = (req, res, next) => {
 // Apply checkDb middleware only to API routes (not static files)
 // Remove the global app.use(checkDb) and apply it per route instead
 
+// Helper to normalize query results from different runtimes/drivers
+function normalizeAllResult(raw) {
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+    if (raw.results && Array.isArray(raw.results)) return raw.results;
+    if (raw.rows && Array.isArray(raw.rows)) return raw.rows;
+    return [];
+}
+
+function normalizeFirstResult(raw) {
+    if (!raw) return null;
+    // Some clients return an object with a `results` or `rows` array
+    if (raw.results && Array.isArray(raw.results)) return raw.results[0] || null;
+    if (raw.rows && Array.isArray(raw.rows)) return raw.rows[0] || null;
+    // Otherwise assume the object itself is the row
+    if (typeof raw === 'object') return raw;
+    return null;
+}
+
 // Register User
 app.post('/register', checkDb, async (req, res) => {
     const { username, email, password } = req.body;
     try {
-        // Check if user exists
-        const existingUser = await req.db.prepare('SELECT * FROM users WHERE email = ?').bind(email).first();
-        
-        if (existingUser) {
+        // Check if user exists (be defensive about driver shape)
+        const existingRaw = await req.db.prepare('SELECT * FROM users WHERE email = ?').bind(email).all();
+        const existingRows = normalizeAllResult(existingRaw);
+        if (existingRows.length) {
+            console.debug('Register blocked - user exists', { email, existingRowsCount: existingRows.length });
             return res.status(400).json({ error: 'User already exists' });
         }
 
@@ -80,10 +100,11 @@ app.post('/register', checkDb, async (req, res) => {
             'INSERT INTO users (username, email, password) VALUES (?, ?, ?)'
         ).bind(username, email, password).run();
 
-        if (result.success) {
-            res.json({ message: 'User registered successfully' });
+        console.debug('Register insert result', { result });
+        if (result && result.success) {
+            res.json({ message: 'User registered successfully', id: result.meta?.last_row_id || null });
         } else {
-            res.status(500).json({ error: 'Failed to register user' });
+            res.status(500).json({ error: 'Failed to register user', detail: result });
         }
     } catch (err) {
         console.error('Register error', err);
@@ -95,12 +116,11 @@ app.post('/register', checkDb, async (req, res) => {
 app.post('/login', checkDb, async (req, res) => {
     const { email, password } = req.body;
     try {
-        const user = await req.db.prepare(
-            'SELECT * FROM users WHERE email = ? AND password = ?'
-        ).bind(email, password).first();
-
-        if (user) {
-            res.json({ message: 'Login successful', user });
+        const raw = await req.db.prepare('SELECT * FROM users WHERE email = ? AND password = ?').bind(email, password).all();
+        const rows = normalizeAllResult(raw);
+        console.debug('Login query', { email, rowsCount: rows.length });
+        if (rows.length) {
+            res.json({ message: 'Login successful', user: rows[0] });
         } else {
             res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -113,8 +133,10 @@ app.post('/login', checkDb, async (req, res) => {
 // Get all cat
 app.get('/cat', checkDb, async (req, res) => {
     try {
-        const { results } = await req.db.prepare('SELECT * FROM cat').all();
-        res.json(results);
+        const raw = await req.db.prepare('SELECT * FROM cat').all();
+        const rows = normalizeAllResult(raw);
+        console.debug('GET /cat query result shape', { rawShape: Object.keys(raw || {}), count: rows.length });
+        res.json(rows);
     } catch (err) {
         console.error('Get cats error', err);
         res.status(500).json({ error: 'Internal Server Error', details: err.message });
@@ -124,15 +146,13 @@ app.get('/cat', checkDb, async (req, res) => {
 // Get single cat
 app.get('/cat/:id', checkDb, async (req, res) => {
     try {
-        const cat = await req.db.prepare('SELECT * FROM cat WHERE id = ?').bind(req.params.id).first();
+        const rawFirst = await req.db.prepare('SELECT * FROM cat WHERE id = ?').bind(req.params.id).first();
+        let cat = normalizeFirstResult(rawFirst);
+        console.debug('GET /cat/:id result', { id: req.params.id, rawFirstShape: Object.keys(rawFirst || {}), found: !!cat });
         if (cat) {
-            // Return as array to match previous API behavior if it expected array, 
-            // but usually single object is better. Previous code returned `rows` which is array.
-            // Let's return array to be safe or just the object if client expects object.
-            // Previous code: res.json(rows) -> array.
-            res.json([cat]); 
+            res.json([cat]);
         } else {
-            res.json([]); // Return empty array if not found to match previous behavior likely
+            res.json([]);
         }
     } catch (err) {
         console.error('Get cat error', err);

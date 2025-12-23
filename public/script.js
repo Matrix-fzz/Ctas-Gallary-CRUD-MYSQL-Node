@@ -122,7 +122,13 @@ async function fetchcat() {
             cardsContainer.innerHTML = `<p class="error">Failed to load cats: ${response.status}</p>`;
             return;
         }
-        allCats = await response.json();
+            allCats = await response.json();
+        // Handle unexpected shapes
+        if (!Array.isArray(allCats) || allCats.length === 0) {
+            cardsContainer.innerHTML = '<p class="info">No cats found.</p>';
+            allCats = Array.isArray(allCats) ? allCats : [];
+            return;
+        }
         rendercat(allCats);
     } catch (error) {
         console.error('Error fetching cat:', error);
@@ -263,13 +269,19 @@ if (loginForm) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                const text = await res.text();
+                data = { error: text || 'Unknown error' };
+            }
             if (res.ok) {
                 alert('Login Successful');
                 loginModal.style.display = 'none';
                 loginForm.reset();
             } else {
-                alert(data.error);
+                alert(data.error || 'Login failed');
             }
         } catch (err) {
             console.error(err);
@@ -290,13 +302,19 @@ if (signupForm) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, email, password })
             });
-            const data = await res.json();
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                const text = await res.text();
+                data = { error: text || 'Unknown error' };
+            }
             if (res.ok) {
                 alert('Signup Successful');
                 signupModal.style.display = 'none';
                 signupForm.reset();
             } else {
-                alert(data.error);
+                alert(data.error || 'Signup failed');
             }
         } catch (err) {
             console.error(err);
