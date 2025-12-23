@@ -116,10 +116,17 @@ nextBtn.addEventListener('click', () => {
 async function fetchcat() {
     try {
         const response = await fetch('/cat');
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('Failed to fetch /cat:', response.status, text);
+            cardsContainer.innerHTML = `<p class="error">Failed to load cats: ${response.status}</p>`;
+            return;
+        }
         allCats = await response.json();
         rendercat(allCats);
     } catch (error) {
         console.error('Error fetching cat:', error);
+        cardsContainer.innerHTML = `<p class="error">Error loading cats. Check console for details.</p>`;
     }
 }
 

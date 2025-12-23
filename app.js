@@ -1,5 +1,11 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+import express from 'express';
+import bodyParser from 'body-parser';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 // Port is handled by Cloudflare Worker environment usually, but kept for local fallback if needed
@@ -7,6 +13,9 @@ const port = process.env.PORT || 5000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Serve static files from the 'public' directory BEFORE any other middleware
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check route
 app.get('/', (req, res) => {
@@ -31,7 +40,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// Helper validation to ensure DB is available
+// Helper validation to ensure DB is available - only for API routes
 const checkDb = (req, res, next) => {
     if (!req.db) {
         return res.status(500).json({ error: 'Database binding not found' });
@@ -39,10 +48,11 @@ const checkDb = (req, res, next) => {
     next();
 };
 
-app.use(checkDb);
+// Apply checkDb middleware only to API routes (not static files)
+// Remove the global app.use(checkDb) and apply it per route instead
 
 // Register User
-app.post('/register', async (req, res) => {
+app.post('/register', checkDb, async (req, res) => {
     const { username, email, password } = req.body;
     try {
         // Check if user exists
@@ -69,7 +79,7 @@ app.post('/register', async (req, res) => {
 });
 
 // Login User
-app.post('/login', async (req, res) => {
+app.post('/login', checkDb, async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await req.db.prepare(
@@ -88,7 +98,7 @@ app.post('/login', async (req, res) => {
 });
 
 // Get all cat
-app.get('/cat', async (req, res) => {
+app.get('/cat', checkDb, async (req, res) => {
     try {
         const { results } = await req.db.prepare('SELECT * FROM cat').all();
         res.json(results);
@@ -99,7 +109,7 @@ app.get('/cat', async (req, res) => {
 });
 
 // Get single cat
-app.get('/cat/:id', async (req, res) => {
+app.get('/cat/:id', checkDb, async (req, res) => {
     try {
         const cat = await req.db.prepare('SELECT * FROM cat WHERE id = ?').bind(req.params.id).first();
         if (cat) {
@@ -118,7 +128,7 @@ app.get('/cat/:id', async (req, res) => {
 });
 
 // Create a record
-app.post('/cat', async (req, res) => {
+app.post('/cat', checkDb, async (req, res) => {
     const { name, description, tag, img } = req.body;
     try {
         const result = await req.db.prepare(
@@ -145,7 +155,7 @@ app.post('/cat', async (req, res) => {
 });
 
 // Delete a record
-app.delete('/cat/:id', async (req, res) => {
+app.delete('/cat/:id', checkDb, async (req, res) => {
     try {
         const result = await req.db.prepare('DELETE FROM cat WHERE id = ?').bind(req.params.id).run();
         if (result.success) {
@@ -160,7 +170,7 @@ app.delete('/cat/:id', async (req, res) => {
 });
 
 // Update a record
-app.put('/cat/:id', async (req, res) => {
+app.put('/cat/:id', checkDb, async (req, res) => {
     const { name, description, tag, img } = req.body;
     try {
         const result = await req.db.prepare(
@@ -179,10 +189,10 @@ app.put('/cat/:id', async (req, res) => {
 });
 
 // List on the Port (only used if running locally via node, not worker)
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
     app.listen(port, () => {
         console.log(`Server is running on port ${port}`);
     });
 }
 
-module.exports = app;
+export default app;
