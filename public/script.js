@@ -39,6 +39,23 @@ window.addEventListener('click', (e) => {
 });
 catForm.addEventListener('submit', saveCat);
 
+// Event Delegation for Edit/Delete buttons
+cardsContainer.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('.btn-edit');
+    const deleteBtn = e.target.closest('.btn-delete');
+
+    if (editBtn) {
+        const id = editBtn.dataset.id;
+        const cat = allCats.find(c => c.id == id);
+        if (cat) {
+            openModal(cat.id, cat.name, cat.description, cat.tag, cat.img);
+        }
+    } else if (deleteBtn) {
+        const id = deleteBtn.dataset.id;
+        deleteCat(id);
+    }
+});
+
 searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const filteredCats = allCats.filter(cat => 
@@ -105,8 +122,8 @@ function rendercat(cats) {
                 <p class="description">${cat.description || ''}</p>
                 <span class="tag">${cat.tag || ''}</span>
                 <div class="card-actions">
-                    <button class="btn-edit" onclick="openModal(${cat.id}, '${cat.name.replace(/'/g, "\\'")}', '${(cat.description || '').replace(/'/g, "\\'")}', '${(cat.tag || '').replace(/'/g, "\\'")}', '${cat.img.replace(/'/g, "\\'")}')"><i class="fas fa-edit"></i> Edit</button>
-                    <button class="btn-delete" onclick="deleteCat(${cat.id})"><i class="fas fa-trash"></i> Delete</button>
+                    <button class="btn-edit" data-id="${cat.id}"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn-delete" data-id="${cat.id}"><i class="fas fa-trash"></i> Delete</button>
                 </div>
             </div>
         `;
@@ -182,10 +199,6 @@ async function deleteCat(id) {
         }
     }
 }
-
-// Expose functions to global scope for inline onclick handlers
-window.openModal = openModal;
-window.deleteCat = deleteCat;
 
 // Login/Signup Logic
 if (loginBtn) {
