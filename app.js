@@ -1,21 +1,34 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// ES module equivalent of __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
 // Port is handled by Cloudflare Worker environment usually, but kept for local fallback if needed
 const port = process.env.PORT || 5000;
 
+// Middleware to serve static files from Wrangler `ASSETS` binding (if provided).
+// `worker.js` attaches env.ASSETS to app.locals.ASSETS.
+app.use(async (req, res, next) => {
+    if (req.method !== 'GET') return next();
+    const assets = req.app.locals.ASSETS;
+    if (!assets) return next();
+    try {
+        const assetPath = req.path === '/' ? '/index.html' : req.path;
+        // Use a dummy origin for URL parsing; ASSETS.fetch accepts Request or URL string
+        const url = new URL(assetPath, 'https://assets/');
+        const assetResp = await assets.fetch(url);
+        if (assetResp && assetResp.status !== 404) {
+            assetResp.headers.forEach((v, k) => res.set(k, v));
+            const arr = new Uint8Array(await assetResp.arrayBuffer());
+            return res.status(assetResp.status).send(Buffer.from(arr));
+        }
+    } catch (err) {
+        console.error('Assets fetch error', err);
+    }
+    next();
+});
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
-// Serve static files from the 'public' directory BEFORE any other middleware
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check route
 app.get('/', (req, res) => {
@@ -27,10 +40,10 @@ app.get('/debug/ping', (req, res) => {
 });
 
 app.get('/debug/db', (req, res) => {
-    res.json({ 
-        hasDb: !!req.db, 
+    res.json({
+        hasDb: !!req.db,
         dbType: typeof req.db,
-        envKeys: process.env ? Object.keys(process.env) : 'no-process-env'
+        envKeys: req.app.locals.envKeys || Object.keys(process.env || {})
     });
 });
 
