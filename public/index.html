@@ -20,6 +20,9 @@
           <li><a href="#">Contact</a></li>
         </ul>
         <div class="buttons">
+          <button id="pannierBtn" class="btn-primary">
+            <i class="fas fa-shopping-basket"></i> Pannier
+          </button>
           <button id="loginBtn" class="btn-primary">LOGIN</button>
           <button id="signupBtn" class="btn-primary">SIGNUP</button>
         </div>
@@ -27,16 +30,12 @@
     </header>
     <div class="container">
       <div class="header">
-        <div
-          class="search-bar"
-        
-        >
+        <div class="search-bar">
           <input
             type="text"
             class="searchInpute"
             id="searchInput"
             placeholder="Search cats..."
-            
           />
           <button id="searchBtn" class="btn-primary">
             <i class="fas fa-search"></i>
@@ -51,10 +50,26 @@
         <!-- Place Cards  -->
       </div>
 
-      <div class="pagination" id="pagination" >
-        <button id="prevBtn" class="btn-primary" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+      <div class="pagination" id="pagination">
+        <button id="prevBtn" class="btn-primary" disabled>
+          <i class="fas fa-chevron-left"></i> Previous
+        </button>
         <span id="pageInfo">Page 1 of 1</span>
-        <button id="nextBtn" class="btn-primary" disabled>Next <i class="fas fa-chevron-right"></i></button>
+        <button id="nextBtn" class="btn-primary" disabled>
+          Next <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Pannier Sidebar -->
+    <div id="pannierSidebar" class="sidebar">
+      <div class="sidebar-header">
+        <h2>My Pannier</h2>
+        <span class="close-sidebar">&times;</span>
+      </div>
+      <div class="sidebar-content" id="pannierContent">
+        <!-- Selected cats will appear here -->
+        <p class="empty-pannier">Your pannier is empty.</p>
       </div>
     </div>
 
@@ -109,11 +124,21 @@
         <form id="loginForm">
           <div class="form-group">
             <label for="loginEmail">Email</label>
-            <input type="email" id="loginEmail" required placeholder="Enter email" />
+            <input
+              type="email"
+              id="loginEmail"
+              required
+              placeholder="Enter email"
+            />
           </div>
           <div class="form-group">
             <label for="loginPassword">Password</label>
-            <input type="password" id="loginPassword" required placeholder="Enter password" />
+            <input
+              type="password"
+              id="loginPassword"
+              required
+              placeholder="Enter password"
+            />
           </div>
           <button type="submit" class="btn-primary">Login</button>
         </form>
@@ -128,15 +153,30 @@
         <form id="signupForm">
           <div class="form-group">
             <label for="signupUsername">Username</label>
-            <input type="text" id="signupUsername" required placeholder="Enter username" />
+            <input
+              type="text"
+              id="signupUsername"
+              required
+              placeholder="Enter username"
+            />
           </div>
           <div class="form-group">
             <label for="signupEmail">Email</label>
-            <input type="email" id="signupEmail" required placeholder="Enter email" />
+            <input
+              type="email"
+              id="signupEmail"
+              required
+              placeholder="Enter email"
+            />
           </div>
           <div class="form-group">
             <label for="signupPassword">Password</label>
-            <input type="password" id="signupPassword" required placeholder="Enter password" />
+            <input
+              type="password"
+              id="signupPassword"
+              required
+              placeholder="Enter password"
+            />
           </div>
           <button type="submit" class="btn-primary">Sign Up</button>
         </form>

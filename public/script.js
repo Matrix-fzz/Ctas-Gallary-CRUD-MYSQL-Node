@@ -24,6 +24,14 @@ const signupCloseBtn = document.querySelector('.signup-close');
 const loginForm = document.getElementById('loginForm');
 const signupForm = document.getElementById('signupForm');
 
+// Pannier Elements
+const pannierBtn = document.getElementById('pannierBtn');
+const pannierSidebar = document.getElementById('pannierSidebar');
+const closeSidebarBtn = document.querySelector('.close-sidebar');
+const pannierContent = document.getElementById('pannierContent');
+
+let pannierCats = [];
+
 let allCats = [];
 let currentPage = 1;
 const itemsPerPage = 10;
@@ -34,8 +42,18 @@ document.addEventListener('DOMContentLoaded', fetchcat);
 // Event Listeners
 addBtn.addEventListener('click', () => openModal());
 closeBtn.addEventListener('click', closeModal);
+catForm.addEventListener('submit', saveCat);
+
+// Pannier Event Listeners
+pannierBtn.addEventListener('click', toggleSidebar);
+closeSidebarBtn.addEventListener('click', toggleSidebar);
+
+// Close sidebar when clicking outside
 window.addEventListener('click', (e) => {
     if (e.target == modal) closeModal();
+    if (e.target != pannierSidebar && e.target != pannierBtn && !pannierSidebar.contains(e.target) && !pannierBtn.contains(e.target)) {
+       pannierSidebar.classList.remove('open');
+    }
 });
 catForm.addEventListener('submit', saveCat);
 
@@ -43,6 +61,7 @@ catForm.addEventListener('submit', saveCat);
 cardsContainer.addEventListener('click', (e) => {
     const editBtn = e.target.closest('.btn-edit');
     const deleteBtn = e.target.closest('.btn-delete');
+    const addPannierBtn = e.target.closest('.btn-add-pannier');
 
     if (editBtn) {
         const id = editBtn.dataset.id;
@@ -53,6 +72,12 @@ cardsContainer.addEventListener('click', (e) => {
     } else if (deleteBtn) {
         const id = deleteBtn.dataset.id;
         deleteCat(id);
+    } else if (addPannierBtn) {
+        const id = addPannierBtn.dataset.id;
+        const cat = allCats.find(c => c.id == id);
+        if (cat) {
+            addToPannier(cat);
+        }
     }
 });
 
@@ -122,6 +147,7 @@ function rendercat(cats) {
                 <p class="description">${cat.description || ''}</p>
                 <span class="tag">${cat.tag || ''}</span>
                 <div class="card-actions">
+                    <button class="btn-add-pannier" data-id="${cat.id}"><i class="fas fa-plus"></i> Pannier</button>
                     <button class="btn-edit" data-id="${cat.id}"><i class="fas fa-edit"></i> Edit</button>
                     <button class="btn-delete" data-id="${cat.id}"><i class="fas fa-trash"></i> Delete</button>
                 </div>
@@ -271,6 +297,52 @@ if (signupForm) {
         }
     });
 }
+
+// Pannier Functions
+function toggleSidebar() {
+    pannierSidebar.classList.toggle('open');
+}
+
+function addToPannier(cat) {
+    if (!pannierCats.some(c => c.id === cat.id)) {
+        pannierCats.push(cat);
+        renderPannier();
+        // Optional: Open sidebar to show added item
+        pannierSidebar.classList.add('open');
+    } else {
+        alert('This cat is already in your pannier!');
+    }
+}
+
+function removeFromPannier(id) {
+    pannierCats = pannierCats.filter(c => c.id !== id);
+    renderPannier();
+}
+
+function renderPannier() {
+    pannierContent.innerHTML = '';
+
+    if (pannierCats.length === 0) {
+        pannierContent.innerHTML = '<p class="empty-pannier">Your pannier is empty.</p>';
+        return;
+    }
+
+    pannierCats.forEach(cat => {
+        const item = document.createElement('div');
+        item.className = 'pannier-item';
+        item.innerHTML = `
+            <img src="${cat.img}" alt="${cat.name}" onerror="this.src='https://via.placeholder.com/50'">
+            <div class="pannier-item-info">
+                <h4>${cat.name}</h4>
+            </div>
+            <button class="remove-pannier-btn" onclick="removeFromPannier('${cat.id}')">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+        pannierContent.appendChild(item);
+    });
+}
+/*
 import { createClient } from '@supabase/supabase-js'
 
 export default {
@@ -297,3 +369,4 @@ export default {
     });
   }
 }
+*/
