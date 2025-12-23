@@ -1,0 +1,26 @@
+
+ ⛅️ wrangler 4.56.0
+───────────────────
+Your Worker has access to the following bindings:
+Binding                       Resource         Mode
+env.DB (nodejs_proj)          D1 Database      local
+env.ASSETS                    Assets           local
+
+⎔ Starting local server...
+[wrangler:warn] Unable to fetch the `Request.cf` object! Falling back to a default placeholder...
+ConnectTimeoutError: Connect Timeout Error (attempted addresses: 104.16.197.131:443, 104.16.196.131:443, timeout: 10000ms)
+    at onConnectTimeout (C:\Users\Moham\Desktop\Pnode\node_modules\undici\lib\core\util.js:868:19)
+    at Immediate._onImmediate (C:\Users\Moham\Desktop\Pnode\node_modules\undici\lib\core\util.js:819:35)
+    at process.processImmediate (node:internal/timers:504:21)
+[wrangler:warn] Unable to fetch the `Request.cf` object! Falling back to a default placeholder...
+ConnectTimeoutError: Connect Timeout Error (attempted addresses: 104.16.197.131:443, 104.16.196.131:443, timeout: 10000ms)
+    at onConnectTimeout (C:\Users\Moham\Desktop\Pnode\node_modules\undici\lib\core\util.js:868:19)
+    at Immediate._onImmediate (C:\Users\Moham\Desktop\Pnode\node_modules\undici\lib\core\util.js:819:35)
+    at process.processImmediate (node:internal/timers:504:21)
+[wrangler:info] Ready on http://127.0.0.1:8787
+[wrangler:error] TypeError: Cannot assign to read only property 'body' of object '#<Request>'
+    at cleanupEvent (file:///C:/Users/Moham/Desktop/Pnode/node_modules/serverless-http/lib/provider/aws/clean-up-event.js:70:9)
+    at null.<anonymous> (file:///C:/Users/Moham/Desktop/Pnode/node_modules/serverless-http/lib/provider/aws/index.js:8:19)
+    at Object.fetch (file:///C:/Users/Moham/Desktop/Pnode/worker.js:10:6)
+[wrangler:info] GET /debug/ping 500 Internal Server Error (65ms)
+Terminate batch job (Y/N)? 

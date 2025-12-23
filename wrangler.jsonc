@@ -8,5 +8,12 @@
   "assets": {
     "directory": "./public",
     "binding": "ASSETS"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "nodejs_proj",
+      "database_id": "2f3375cf-60e5-4623-8249-0e2e9ab4efd5"
+    }
+  ]
 }

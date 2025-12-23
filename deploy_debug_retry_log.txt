@@ -1,0 +1,18 @@
+
+ ⛅️ wrangler 4.56.0
+───────────────────
+🌀 Building list of assets...
+✨ Read 3 files from the assets directory C:\Users\Moham\Desktop\Pnode\public
+🌀 Starting asset upload...
+No updated asset files to upload. Proceeding with deployment...
+Total Upload: 1263.98 KiB / gzip: 315.03 KiB
+Worker Startup Time: 48 ms
+Your Worker has access to the following bindings:
+Binding                       Resource         
+env.DB (nodejs_proj)          D1 Database      
+env.ASSETS                    Assets           
+
+Uploaded cats (34.01 sec)
+Deployed cats triggers (5.10 sec)
+  https://cats.mohamedfazazi74.workers.dev
+Current Version ID: 058b9fee-bfe7-4be8-978b-735e83261847
