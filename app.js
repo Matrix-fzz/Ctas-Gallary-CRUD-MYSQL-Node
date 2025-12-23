@@ -25,6 +25,12 @@ app.get('/debug/db', (req, res) => {
     });
 });
 
+// Middleware to attach DB from app.locals to each request
+app.use((req, res, next) => {
+    req.db = req.app.locals.db;
+    next();
+});
+
 // Helper validation to ensure DB is available
 const checkDb = (req, res, next) => {
     if (!req.db) {
